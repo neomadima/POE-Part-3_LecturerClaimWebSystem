@@ -1,0 +1,142 @@
+﻿@model List<LecturerClaimsSystem.Models.Claim>
+@{
+    ViewData["Title"] = "My Claims";
+    var username = ViewBag.Username as string ?? "Lecturer";
+}
+
+<style>
+    body {
+        background-color: #2D2D30;
+        color: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+    }
+
+    .header {
+        background-color: #252526;
+        padding: 10px;
+        border-bottom: 1px solid #007ACC;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .content {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 0 20px;
+    }
+
+    .btn-logout {
+        background-color: #007ACC;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .nav-tabs {
+        background-color: #252526;
+        padding: 0 20px;
+    }
+
+    .nav-tab {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #252526;
+        color: white;
+        text-decoration: none;
+        border: 1px solid transparent;
+    }
+
+        .nav-tab.active {
+            background-color: #2D2D30;
+            border-color: #007ACC;
+        }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #1E1E1E;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #3E3E42;
+    }
+
+    th {
+        background-color: #252526;
+    }
+
+    .no-claims {
+        text-align: center;
+        padding: 20px;
+        color: lightgray;
+    }
+</style>
+
+<div class="header">
+    <div class="header-content">
+        <h2>Lecturer Dashboard</h2>
+        <div>Welcome, @username - Submit and track your claims</div>
+
+        <form method="post" action="@Url.Action("Logout", "Account")">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn-logout">Logout</button>
+        </form>
+
+    </div>
+</div>
+
+<div class="nav-tabs">
+    <a href="@Url.Action("Index", "Lecturer")" class="nav-tab">Submit Claim</a>
+    <a href="javascript:void(0)" class="nav-tab active">My Claims</a>
+</div>
+
+<div class="content">
+    <h3>My Claim History</h3>
+
+    @if (Model.Count == 0)
+    {
+        <div class="no-claims">
+            <p>No claims submitted yet.</p>
+        </div>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Hours</th>
+                    <th>Rate</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Approved By</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var claim in Model)
+                {
+                    <tr>
+                        <td>@claim.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@claim.Hours</td>
+                        <td>@claim.Rate.ToString("C")</td>
+                        <td>@claim.Total.ToString("C")</td>
+                        <td>@claim.Status</td>
+                        <td>@claim.ApprovedBy</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

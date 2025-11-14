@@ -1,0 +1,658 @@
+﻿@model List<LecturerClaimsSystem.Models.Claim>
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    var role = ViewBag.Role as string ?? "Admin";
+    var approvalService = ViewBag.ApprovalService as LecturerClaimsSystem.Services.IApprovalService;
+}
+
+<style>
+    body {
+        background-color: #2D2D30;
+        color: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+    }
+
+    .header {
+        background-color: #252526;
+        padding: 10px;
+        border-bottom: 1px solid #007ACC;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .nav-tabs {
+        background-color: #252526;
+        padding: 0 20px;
+    }
+
+    .tab-content {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 0 20px;
+    }
+
+    .btn-primary {
+        background-color: #007ACC;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-weight: bold;
+        border-radius: 4px;
+    }
+
+    .btn-logout {
+        background-color: #007ACC;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 4px;
+    }
+
+    .btn-approve {
+        background-color: green !important;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-right: 5px;
+        border-radius: 3px;
+    }
+
+    .btn-reject {
+        background-color: red !important;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 3px;
+    }
+
+    .btn-info {
+        background-color: #007ACC !important;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-left: 5px;
+        border-radius: 3px;
+    }
+
+    .btn-approve:hover {
+        background-color: darkgreen !important;
+    }
+
+    .btn-reject:hover {
+        background-color: darkred !important;
+    }
+
+    .btn-info:hover {
+        background-color: #0098ff !important;
+    }
+
+    .nav-tab {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #252526;
+        color: white;
+        text-decoration: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+        .nav-tab.active {
+            background-color: #2D2D30;
+            border-color: #007ACC;
+        }
+
+    .tab-pane {
+        display: none;
+    }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+    .alert {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #1E1E1E;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #3E3E42;
+    }
+
+    th {
+        background-color: #252526;
+    }
+
+    .validation-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: bold;
+        margin: 2px;
+    }
+
+    .badge-error {
+        background-color: #ff4444;
+        color: white;
+    }
+
+    .badge-warning {
+        background-color: #ffbb33;
+        color: black;
+    }
+
+    .badge-info {
+        background-color: #007ACC;
+        color: white;
+    }
+
+    .badge-success {
+        background-color: #00C851;
+        color: white;
+    }
+
+    .validation-panel {
+        background-color: #1a1a1a;
+        border-left: 4px solid #007ACC;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 4px;
+    }
+
+    .validation-item {
+        margin: 5px 0;
+        padding: 5px;
+        border-radius: 3px;
+    }
+
+    .validation-error {
+        background-color: rgba(255, 68, 68, 0.1);
+        border-left: 3px solid #ff4444;
+    }
+
+    .validation-warning {
+        background-color: rgba(255, 187, 51, 0.1);
+        border-left: 3px solid #ffbb33;
+    }
+
+    .validation-info {
+        background-color: rgba(0, 122, 204, 0.1);
+        border-left: 3px solid #007ACC;
+    }
+
+    .workflow-info {
+        background-color: #2d2d30;
+        border: 1px solid #007ACC;
+        border-radius: 5px;
+        padding: 10px;
+        margin: 10px 0;
+    }
+
+    .auto-approval-check {
+        background-color: #1a1a1a;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+    }
+
+    .claim-card {
+        background-color: #1E1E1E;
+        border: 1px solid #3E3E42;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 10px 0;
+    }
+
+    .claim-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .claim-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+    }
+
+    .stat-card {
+        background-color: #252526;
+        padding: 15px;
+        border-radius: 5px;
+        text-align: center;
+        border: 1px solid #3E3E42;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007ACC;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #ccc;
+    }
+
+    .calculation-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 5px 0;
+        padding: 5px 0;
+    }
+
+    .calculation-total {
+        font-weight: bold;
+        font-size: 1.1em;
+        color: #007ACC;
+        border-top: 1px solid #3E3E42;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+
+    .no-claims {
+        text-align: center;
+        padding: 40px;
+        color: #ccc;
+        background-color: #1E1E1E;
+        border-radius: 5px;
+        margin: 20px 0;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.7);
+        z-index: 1000;
+    }
+
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #2D2D30;
+        padding: 20px;
+        border-radius: 5px;
+        width: 400px;
+        border: 1px solid #007ACC;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 3px;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: white;
+    }
+
+    textarea {
+        width: 100%;
+        background-color: #3E3E42;
+        color: white;
+        border: 1px solid #007ACC;
+        padding: 8px;
+        box-sizing: border-box;
+        border-radius: 4px;
+        resize: vertical;
+    }
+
+    .btn-approve:disabled {
+        background-color: #666 !important;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+</style>
+
+<div class="header">
+    <div class="header-content">
+        <h2>@role Dashboard - Automated Claim Verification</h2>
+        <div>Review and process claims with automated validation</div>
+        <a href="/Account/Logout" class="btn-logout">Logout</a>
+    </div>
+</div>
+
+<div class="nav-tabs">
+    <a href="javascript:void(0)" class="nav-tab active" onclick="showTab('pending')">Pending Claims</a>
+    <a href="@Url.Action("ApprovedClaims", "Admin")" class="nav-tab">Approved Claims</a>
+    <a href="javascript:void(0)" class="nav-tab" onclick="showTab('stats')">Quick Stats</a>
+</div>
+
+<div class="tab-content">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning">@TempData["Warning"]</div>
+    }
+
+    <div id="pending" class="tab-pane active">
+        <h3>Pending Claims for Approval</h3>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-value">@Model.Count</div>
+                <div class="stat-label">Total Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">$@Model.Sum(c => c.Total).ToString("F2")</div>
+                <div class="stat-label">Total Value</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@Model.Count(c => c.Total > 1000)</div>
+                <div class="stat-label">Requires Senior Approval</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@Model.Count(c => string.IsNullOrEmpty(c.DocumentPath) && c.Total >= 1000)</div>
+                <div class="stat-label">Missing Documentation</div>
+            </div>
+        </div>
+
+        @if (Model.Count == 0)
+        {
+            <div class="no-claims">
+                <p>No pending claims found.</p>
+            </div>
+        }
+        else
+        {
+            <div class="claims-list">
+                @foreach (var claim in Model)
+                {
+                    var validationResults = approvalService.ValidateClaim(claim);
+                    var canApprove = approvalService.CanApproveClaim(claim, role);
+                    var workflow = approvalService.GetApprovalWorkflow(claim);
+                    var requiresHigherApproval = approvalService.RequiresHigherApproval(claim);
+
+                    <div class="claim-card" id="claim-@claim.Id">
+                        <div class="claim-header">
+                            <div>
+                                <strong>@claim.Lecturer</strong> - @claim.Date.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                            <div>
+                                <span class="validation-badge @(validationResults.Any(r => r.Severity == "Error") ? "badge-error" :
+                                                                                      validationResults.Any(r => r.Severity == "Warning") ? "badge-warning" : "badge-success")">
+                            @validationResults.Count(r => r.Severity == "Error") Errors,
+                            @validationResults.Count(r => r.Severity == "Warning") Warnings
+                        </span>
+                    </div>
+                </div>
+
+                        <div class="claim-details">
+                            <div class="calculation-row">
+                                <span>Hours:</span>
+                                <span>@claim.Hours</span>
+                            </div>
+                            <div class="calculation-row">
+                                <span>Rate:</span>
+                                <span>@claim.Rate.ToString("C")</span>
+                            </div>
+                            <div class="calculation-row calculation-total">
+                                <span>Total:</span>
+                                <span>@claim.Total.ToString("C")</span>
+                            </div>
+                    @if (!string.IsNullOrEmpty(claim.Notes))
+                            {
+                                <div class="calculation-row">
+                                    <span>Notes:</span>
+                                    <span>@claim.Notes</span>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Automated Validation Results -->
+                        <div class="validation-panel">
+                            <strong>Automated Validation:</strong>
+                            <div class="workflow-info">
+                                <strong>Approval Workflow:</strong> @workflow
+                                @if (requiresHigherApproval)
+                                {
+                                    <span class="validation-badge badge-warning">Requires Higher Approval</span>
+                                }
+                            </div>
+                            @foreach (var result in validationResults)
+                            {
+                                <div class="validation-item @($"validation-{result.Severity.ToLower()}")">
+                                    <span class="validation-badge @($"badge-{result.Severity.ToLower()}")">
+                                        @result.Severity
+                                    </span>
+                                    @result.Message
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="claim-actions">
+                            @if (canApprove)
+                            {
+                                <form method="post" action="@Url.Action("ApproveClaim", "Admin")" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@claim.Id" />
+                                    <button type="submit" class="btn-approve"
+                                            onclick="return confirm('Are you sure you want to approve this claim?')">
+                                        Approve
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn-approve" disabled title="Cannot approve - check validation rules">
+                                    Approve
+                                </button>
+                            }
+
+                            <button type="button" class="btn-reject"
+                                    onclick="showRejectModal(@claim.Id)">
+                                Reject
+                            </button>
+
+                            <button type="button" class="btn-info"
+                                    onclick="validateClaim(@claim.Id)">
+                                Re-validate
+                            </button>
+
+                            @if (!canApprove)
+                            {
+                                <span class="validation-badge badge-warning">Cannot Approve</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div id="stats" class="tab-pane">
+        <h3>Quick Statistics</h3>
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-value">@Model.Count</div>
+                <div class="stat-label">Pending Claims</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">$@Model.Sum(c => c.Total).ToString("F2")</div>
+                <div class="stat-label">Total Pending Value</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@((Model.Count > 0 ? Model.Average(c => c.Total) : 0).ToString("C"))</div>
+                <div class="stat-label">Average Claim</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@Model.Count(c => c.Total > 1000)</div>
+                <div class="stat-label">High Value Claims</div>
+            </div>
+        </div>
+
+        <div class="workflow-info">
+            <h4>Approval Rules Summary</h4>
+            <ul>
+                <li>Programme Coordinator can approve claims up to $1,000</li>
+                <li>Academic Manager can approve claims up to $5,000</li>
+                <li>Standard rate limit: $80/hour</li>
+                <li>Senior rate limit: $120/hour</li>
+                <li>Maximum hours per claim: 40</li>
+                <li>Documentation required for claims over $1,000</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div id="rejectModal" class="modal">
+    <div class="modal-content">
+        <h3>Reject Claim</h3>
+        <form id="rejectForm" method="post" action="@Url.Action("RejectClaim", "Admin")">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" id="rejectClaimId" />
+            <div class="form-group">
+                <label for="reviewNotes">Rejection Reason (Optional):</label>
+                <textarea name="reviewNotes" id="reviewNotes" rows="3" placeholder="Provide reason for rejection..."></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button type="submit" class="btn-reject">Confirm Reject</button>
+                <button type="button" class="btn-secondary" onclick="closeRejectModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function showTab(tabName) {
+        // Hide all tab panes
+        document.querySelectorAll('.tab-pane').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Show selected tab pane
+        document.getElementById(tabName).classList.add('active');
+
+        // Update active tab
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        event.target.classList.add('active');
+    }
+
+    function showRejectModal(claimId) {
+        document.getElementById('rejectClaimId').value = claimId;
+        document.getElementById('rejectModal').style.display = 'block';
+    }
+
+    function closeRejectModal() {
+        document.getElementById('rejectModal').style.display = 'none';
+        document.getElementById('reviewNotes').value = '';
+    }
+
+    async function validateClaim(claimId) {
+        try {
+            const response = await fetch(`/Admin/ValidateClaim?id=${claimId}`);
+            const result = await response.json();
+
+            if (result.success) {
+                alert(`Validation Results:\n\n${
+                    result.validationResults.map(r => `• ${r.severity}: ${r.message}`).join('\n')
+                }\n\nCan Approve: ${result.canApprove ? 'Yes' : 'No'}\nWorkflow: ${result.approvalWorkflow}`);
+            } else {
+                alert('Error validating claim');
+            }
+        } catch (error) {
+            console.error('Validation error:', error);
+            alert('Error validating claim');
+        }
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('rejectModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeRejectModal();
+        }
+    });
+
+    // Debug form submissions
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Admin dashboard loaded successfully');
+        console.log('Pending claims count:', @Model.Count);
+
+        // Log form submissions for debugging
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                console.log('Form submitted to:', this.action);
+            });
+        });
+    });
+</script>

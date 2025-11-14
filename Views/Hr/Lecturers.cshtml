@@ -1,0 +1,289 @@
+﻿@model List<LecturerClaimsSystem.Models.Lecturer>
+@{
+    ViewData["Title"] = "Lecturer Management";
+    var role = ViewBag.Role as string ?? "HR Manager";
+}
+
+<style>
+    /* Use the same styles as the HR Index page */
+    body {
+        background-color: #2D2D30;
+        color: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+    }
+
+    .header {
+        background-color: #252526;
+        padding: 10px;
+        border-bottom: 1px solid #007ACC;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .nav-tabs {
+        background-color: #252526;
+        padding: 0 20px;
+    }
+
+    .content {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 0 20px;
+    }
+
+    .btn-logout {
+        background-color: #007ACC;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 4px;
+    }
+
+    .nav-tab {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #252526;
+        color: white;
+        text-decoration: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+        .nav-tab.active {
+            background-color: #2D2D30;
+            border-color: #007ACC;
+        }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #1E1E1E;
+        margin: 20px 0;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #3E3E42;
+    }
+
+    th {
+        background-color: #252526;
+    }
+
+    .btn-primary {
+        background-color: #007ACC;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        cursor: pointer;
+        border-radius: 4px;
+        margin-right: 5px;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .lecturer-form {
+        background-color: #252526;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        border: 1px solid #3E3E42;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: white;
+        font-weight: bold;
+    }
+
+    input, select {
+        width: 100%;
+        background-color: #3E3E42;
+        color: white;
+        border: 1px solid #007ACC;
+        padding: 8px;
+        border-radius: 4px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .status-active {
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .status-inactive {
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    .alert {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+</style>
+
+<div class="header">
+    <div class="header-content">
+        <h2>HR Manager Dashboard</h2>
+        <div>Lecturer Management System</div>
+        <a href="/Account/Logout" class="btn-logout">Logout</a>
+    </div>
+</div>
+
+<div class="nav-tabs">
+    <a href="@Url.Action("Index", "Hr")" class="nav-tab">Dashboard</a>
+    <a href="javascript:void(0)" class="nav-tab active">Lecturer Management</a>
+    <a href="@Url.Action("PaymentReports", "Hr")" class="nav-tab">Payment Reports</a>
+</div>
+
+<div class="content">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <h3>Lecturer Management</h3>
+
+    <div class="lecturer-form">
+        <h4>Add New Lecturer</h4>
+        <form method="post" action="@Url.Action("CreateLecturer", "Hr")">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="EmployeeId">Employee ID:</label>
+                    <input type="text" id="EmployeeId" name="EmployeeId" required />
+                </div>
+                <div class="form-group">
+                    <label for="FirstName">First Name:</label>
+                    <input type="text" id="FirstName" name="FirstName" required />
+                </div>
+                <div class="form-group">
+                    <label for="LastName">Last Name:</label>
+                    <input type="text" id="LastName" name="LastName" required />
+                </div>
+                <div class="form-group">
+                    <label for="Email">Email:</label>
+                    <input type="email" id="Email" name="Email" required />
+                </div>
+                <div class="form-group">
+                    <label for="PhoneNumber">Phone Number:</label>
+                    <input type="tel" id="PhoneNumber" name="PhoneNumber" />
+                </div>
+                <div class="form-group">
+                    <label for="Department">Department:</label>
+                    <input type="text" id="Department" name="Department" required />
+                </div>
+                <div class="form-group">
+                    <label for="Position">Position:</label>
+                    <input type="text" id="Position" name="Position" required />
+                </div>
+                <div class="form-group">
+                    <label for="DefaultHourlyRate">Default Hourly Rate:</label>
+                    <input type="number" step="0.01" id="DefaultHourlyRate" name="DefaultHourlyRate" value="50.00" required />
+                </div>
+            </div>
+            <button type="submit" class="btn-success">Add Lecturer</button>
+        </form>
+    </div>
+
+    <h4>Current Lecturers</h4>
+    @if (Model.Count == 0)
+    {
+        <p>No lecturers found.</p>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Position</th>
+                    <th>Hourly Rate</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var lecturer in Model)
+                {
+                    <tr>
+                        <td>@lecturer.EmployeeId</td>
+                        <td>@lecturer.FullName</td>
+                        <td>@lecturer.Email</td>
+                        <td>@lecturer.Department</td>
+                        <td>@lecturer.Position</td>
+                        <td>@lecturer.DefaultHourlyRate.ToString("C")</td>
+                        <td class="@(lecturer.IsActive ? "status-active" : "status-inactive")">
+                            @(lecturer.IsActive ? "Active" : "Inactive")
+                        </td>
+                        <td>
+                            @if (lecturer.IsActive)
+                            {
+                                <form method="post" action="@Url.Action("DeactivateLecturer", "Hr")" style="display: inline;">
+                                    <input type="hidden" name="id" value="@lecturer.Id" />
+                                    <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to deactivate this lecturer?')">Deactivate</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

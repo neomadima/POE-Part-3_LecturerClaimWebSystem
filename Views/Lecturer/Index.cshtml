@@ -1,0 +1,584 @@
+﻿@model List<LecturerClaimsSystem.Models.Claim>
+@{
+    ViewData["Title"] = "Lecturer Dashboard";
+    var username = ViewBag.Username as string ?? "Lecturer";
+}
+
+<style>
+    body {
+        background-color: #2D2D30;
+        color: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+    }
+
+    .header {
+        background-color: #252526;
+        padding: 10px;
+        border-bottom: 1px solid #007ACC;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .nav-tabs {
+        background-color: #252526;
+        padding: 0 20px;
+    }
+
+    .tab-content {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 0 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: white;
+    }
+
+    input, textarea, select {
+        width: 100%;
+        background-color: #3E3E42;
+        color: white;
+        border: 1px solid #007ACC;
+        padding: 8px;
+        box-sizing: border-box;
+        border-radius: 4px;
+    }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #0098ff;
+            box-shadow: 0 0 5px rgba(0, 152, 255, 0.5);
+        }
+
+        input.error {
+            border-color: #ff4444;
+            box-shadow: 0 0 5px rgba(255, 68, 68, 0.5);
+        }
+
+    textarea {
+        height: 80px;
+        resize: vertical;
+    }
+
+    .btn-primary {
+        background-color: #007ACC;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-weight: bold;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+
+        .btn-primary:hover {
+            background-color: #0098ff;
+        }
+
+        .btn-primary:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+    .btn-logout {
+        background-color: #007ACC;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 4px;
+    }
+
+    .progress-bar {
+        background-color: #3E3E42;
+        height: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        background-color: #007ACC;
+        height: 100%;
+        transition: width 0.3s ease;
+    }
+
+    .status-box {
+        background-color: #1E1E1E;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 10px 0;
+    }
+
+    .nav-tab {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #252526;
+        color: white;
+        text-decoration: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+        .nav-tab.active {
+            background-color: #2D2D30;
+            border-color: #007ACC;
+        }
+
+    .tab-pane {
+        display: none;
+    }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+    .alert {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #1E1E1E;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #3E3E42;
+    }
+
+    th {
+        background-color: #252526;
+    }
+
+    .calculation-box {
+        background-color: #1E1E1E;
+        border: 1px solid #007ACC;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 15px 0;
+    }
+
+    .calculation-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 5px 0;
+    }
+
+    .calculation-total {
+        font-weight: bold;
+        font-size: 1.2em;
+        color: #007ACC;
+        border-top: 1px solid #3E3E42;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+
+    .error-message {
+        color: #ff4444;
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+    }
+
+    .validation-summary {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        display: none;
+    }
+
+    .file-info {
+        margin-top: 5px;
+        font-size: 12px;
+        color: #ccc;
+    }
+
+    .form-section {
+        margin-bottom: 20px;
+    }
+
+    .form-section-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #007ACC;
+    }
+</style>
+
+<div class="header">
+    <div class="header-content">
+        <h2>Lecturer Dashboard</h2>
+        <div>Welcome, @username - Submit and track your claims</div>
+        <a href="/Account/Logout" class="btn-logout">Logout</a>
+    </div>
+</div>
+
+<div class="nav-tabs">
+    <a href="javascript:void(0)" class="nav-tab active" onclick="showTab('submit')">Submit Claim</a>
+    <a href="javascript:void(0)" class="nav-tab" onclick="showTab('claims')">My Claims</a>
+</div>
+
+<div class="tab-content">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div id="submit" class="tab-pane active">
+        <h3>Submit New Claim</h3>
+
+        <div class="validation-summary" id="validationSummary"></div>
+
+        <form method="post" asp-action="SubmitClaim" enctype="multipart/form-data" id="claimForm">
+            @Html.AntiForgeryToken()
+
+            <div class="form-section">
+                <div class="form-section-title">Claim Details</div>
+
+                <div class="form-group">
+                    <label for="Hours">Hours Worked: *</label>
+                    <input type="number" step="0.1" id="Hours" name="Hours" value="1" min="0.1" max="100"
+                           oninput="calculateTotal()" onblur="validateHours()" />
+                    <div class="error-message" id="hoursError">Hours must be between 0.1 and 100</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="Rate">Hourly Rate ($): *</label>
+                    <input type="number" step="0.01" id="Rate" name="Rate" value="50" min="0.1" max="1000"
+                           oninput="calculateTotal()" onblur="validateRate()" />
+                    <div class="error-message" id="rateError">Rate must be between $0.1 and $1000</div>
+                </div>
+
+                <div class="calculation-box">
+                    <div class="calculation-row">
+                        <span>Hours Worked:</span>
+                        <span id="displayHours">1</span>
+                    </div>
+                    <div class="calculation-row">
+                        <span>Hourly Rate:</span>
+                        <span id="displayRate">$50.00</span>
+                    </div>
+                    <div class="calculation-row calculation-total">
+                        <span>Total Payment:</span>
+                        <span id="displayTotal">$50.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">Additional Information</div>
+
+                <div class="form-group">
+                    <label for="Notes">Additional Notes:</label>
+                    <textarea id="Notes" name="Notes" placeholder="Optional: Add any additional information about this claim..."
+                              maxlength="1000"></textarea>
+                    <div class="file-info"><span id="notesCount">0</span>/1000 characters</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="Document">Supporting Documents:</label>
+                    <input type="file" id="Document" name="document" accept=".pdf,.docx,.xlsx"
+                           onchange="validateFile(this)" />
+                    <div class="file-info" id="fileInfo">Maximum file size: 10MB (PDF, DOCX, XLSX only)</div>
+                    <div class="error-message" id="fileError"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">Submission Status</div>
+
+                <div class="form-group">
+                    <label>Current Status:</label>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    <div id="statusText">Ready to submit</div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary" id="submitButton">Submit Claim</button>
+        </form>
+
+        <div class="status-box">
+            <div id="claimStatusText">
+                Claim Status:
+                @if (Model.Count > 0)
+                {
+                    <text>Latest claim: @Model[0].Status</text>
+                }
+                else
+                {
+                    <text>No claims submitted</text>
+                }
+            </div>
+        </div>
+
+        <div class="status-box">
+            <strong>Latest Claim Status</strong>
+            <div id="latestClaimStatus">
+                @if (ViewBag.LatestClaim != null)
+                {
+                    <text>Latest: @ViewBag.LatestClaim.Date.ToString("dd/MM/yyyy") - @ViewBag.LatestClaim.Hours hours - Status: @ViewBag.LatestClaim.Status</text>
+                }
+                else
+                {
+                    <text>No claims submitted yet</text>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div id="claims" class="tab-pane">
+        <h3>My Claim History</h3>
+
+        @if (Model.Count == 0)
+        {
+            <div class="status-box">
+                <p>No claims submitted yet.</p>
+            </div>
+        }
+        else
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Hours</th>
+                        <th>Rate</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Approved By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var claim in Model)
+                    {
+                        <tr>
+                            <td>@claim.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@claim.Hours</td>
+                            <td>@claim.Rate.ToString("C")</td>
+                            <td>@claim.Total.ToString("C")</td>
+                            <td>@claim.Status</td>
+                            <td>@claim.ApprovedBy</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<script>
+    function calculateTotal() {
+        const hours = parseFloat(document.getElementById('Hours').value) || 0;
+        const rate = parseFloat(document.getElementById('Rate').value) || 0;
+        const total = hours * rate;
+
+        document.getElementById('displayHours').textContent = hours.toFixed(1);
+        document.getElementById('displayRate').textContent = '$' + rate.toFixed(2);
+        document.getElementById('displayTotal').textContent = '$' + total.toFixed(2);
+
+        validateForm();
+    }
+
+    function validateHours() {
+        const hoursInput = document.getElementById('Hours');
+        const hoursError = document.getElementById('hoursError');
+        const hours = parseFloat(hoursInput.value);
+
+        if (isNaN(hours) || hours < 0.1 || hours > 100) {
+            hoursInput.classList.add('error');
+            hoursError.style.display = 'block';
+            return false;
+        } else {
+            hoursInput.classList.remove('error');
+            hoursError.style.display = 'none';
+            return true;
+        }
+    }
+
+    function validateRate() {
+        const rateInput = document.getElementById('Rate');
+        const rateError = document.getElementById('rateError');
+        const rate = parseFloat(rateInput.value);
+
+        if (isNaN(rate) || rate < 0.1 || rate > 1000) {
+            rateInput.classList.add('error');
+            rateError.style.display = 'block';
+            return false;
+        } else {
+            rateInput.classList.remove('error');
+            rateError.style.display = 'none';
+            return true;
+        }
+    }
+
+    function validateFile(input) {
+        const fileError = document.getElementById('fileError');
+        const fileInfo = document.getElementById('fileInfo');
+
+        if (input.files.length > 0) {
+            const file = input.files[0];
+            const maxSize = 10 * 1024 * 1024; 
+            const allowedTypes = ['application/pdf',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+
+            if (file.size > maxSize) {
+                fileError.textContent = 'File size exceeds 10MB limit.';
+                fileError.style.display = 'block';
+                input.value = '';
+                return false;
+            }
+
+            if (!allowedTypes.includes(file.type)) {
+                fileError.textContent = 'Only PDF, DOCX, and XLSX files are allowed.';
+                fileError.style.display = 'block';
+                input.value = '';
+                return false;
+            }
+
+            fileError.style.display = 'none';
+            fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        } else {
+            fileError.style.display = 'none';
+            fileInfo.textContent = 'Maximum file size: 10MB (PDF, DOCX, XLSX only)';
+        }
+
+        return true;
+    }
+
+    document.getElementById('Notes').addEventListener('input', function() {
+        const count = this.value.length;
+        document.getElementById('notesCount').textContent = count;
+
+        if (count > 1000) {
+            this.classList.add('error');
+        } else {
+            this.classList.remove('error');
+        }
+    });
+
+    function validateForm() {
+        const hoursValid = validateHours();
+        const rateValid = validateRate();
+        const submitButton = document.getElementById('submitButton');
+        const validationSummary = document.getElementById('validationSummary');
+
+        const isValid = hoursValid && rateValid;
+
+        submitButton.disabled = !isValid;
+
+        if (!isValid) {
+            validationSummary.innerHTML = 'Please fix the errors above before submitting.';
+            validationSummary.style.display = 'block';
+        } else {
+            validationSummary.style.display = 'none';
+        }
+
+        return isValid;
+    }
+
+    document.getElementById('claimForm').addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            return false;
+        }
+
+        const submitButton = document.getElementById('submitButton');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Submitting...';
+
+        return true;
+    });
+
+    function showTab(tabName) {
+        document.querySelectorAll('.tab-pane').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        document.getElementById(tabName).classList.add('active');
+
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        event.target.classList.add('active');
+    }
+
+    @if (ViewBag.LatestClaim != null)
+    {
+            <text>
+            updateProgressBar('@ViewBag.LatestClaim.Status');
+            </text>
+    }
+
+    function updateProgressBar(status) {
+        const progressFill = document.getElementById('progressFill');
+        const statusText = document.getElementById('statusText');
+
+        switch(status) {
+            case 'Pending':
+                progressFill.style.width = '33%';
+                statusText.textContent = 'Pending Review';
+                statusText.style.color = 'lightyellow';
+                break;
+            case 'Approved':
+                progressFill.style.width = '100%';
+                statusText.textContent = 'Approved ✓';
+                statusText.style.color = 'lightgreen';
+                break;
+            case 'Rejected':
+                progressFill.style.width = '0%';
+                statusText.textContent = 'Rejected ✗';
+                statusText.style.color = 'lightcoral';
+                break;
+            default:
+                progressFill.style.width = '0%';
+                statusText.textContent = 'Ready to submit';
+                statusText.style.color = 'lightgray';
+                break;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        calculateTotal();
+        validateForm();
+    });
+</script>

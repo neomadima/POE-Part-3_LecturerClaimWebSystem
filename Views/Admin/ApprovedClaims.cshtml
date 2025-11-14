@@ -1,0 +1,215 @@
+﻿@model List<LecturerClaimsSystem.Models.Claim>
+@{
+    ViewData["Title"] = "Approved Claims";
+    var role = ViewBag.Role as string ?? "Admin";
+    var approvedClaims = Model ?? new List<LecturerClaimsSystem.Models.Claim>();
+}
+
+<style>
+    body {
+        background-color: #2D2D30;
+        color: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+    }
+
+    .header {
+        background-color: #252526;
+        padding: 10px;
+        border-bottom: 1px solid #007ACC;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .nav-tabs {
+        background-color: #252526;
+        padding: 0 20px;
+    }
+
+    .content {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 0 20px;
+    }
+
+    .btn-logout {
+        background-color: #007ACC;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 4px;
+    }
+
+    .nav-tab {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #252526;
+        color: white;
+        text-decoration: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+        .nav-tab.active {
+            background-color: #2D2D30;
+            border-color: #007ACC;
+        }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #1E1E1E;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #3E3E42;
+    }
+
+    th {
+        background-color: #252526;
+    }
+
+    .no-claims {
+        text-align: center;
+        padding: 40px;
+        color: #ccc;
+        background-color: #1E1E1E;
+        border-radius: 5px;
+        margin: 20px 0;
+    }
+
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+    }
+
+    .stat-card {
+        background-color: #252526;
+        padding: 15px;
+        border-radius: 5px;
+        text-align: center;
+        border: 1px solid #3E3E42;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007ACC;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #ccc;
+    }
+
+    .alert {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+</style>
+
+<div class="header">
+    <div class="header-content">
+        <h2>@role Dashboard - Approved Claims</h2>
+        <div>Review approved claims history</div>
+        <a href="/Account/Logout" class="btn-logout">Logout</a>
+    </div>
+</div>
+
+<div class="nav-tabs">
+    <a href="@Url.Action("Index", "Admin")" class="nav-tab">Pending Claims</a>
+    <a href="javascript:void(0)" class="nav-tab active">Approved Claims</a>
+</div>
+
+<div class="content">
+    <h3>Approved Claims History</h3>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+        <div class="stat-card">
+            <div class="stat-value">@approvedClaims.Count</div>
+            <div class="stat-label">Total Approved</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">$@(approvedClaims.Sum(c => c.Total).ToString("F2"))</div>
+            <div class="stat-label">Total Approved Value</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">@((approvedClaims.Count > 0 ? approvedClaims.Average(c => c.Total) : 0).ToString("C"))</div>
+            <div class="stat-label">Average Approved Claim</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">@(approvedClaims.Select(c => c.Lecturer).Distinct().Count())</div>
+            <div class="stat-label">Unique Lecturers</div>
+        </div>
+    </div>
+
+    @if (approvedClaims.Count == 0)
+    {
+        <div class="no-claims">
+            <p>No approved claims found.</p>
+        </div>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Lecturer</th>
+                    <th>Date</th>
+                    <th>Hours</th>
+                    <th>Total</th>
+                    <th>Approved By</th>
+                    <th>Approval Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var claim in approvedClaims)
+                {
+                    <tr>
+                        <td>@claim.Lecturer</td>
+                        <td>@claim.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@claim.Hours</td>
+                        <td>@claim.Total.ToString("C")</td>
+                        <td>@(string.IsNullOrEmpty(claim.ApprovedBy) ? "System" : claim.ApprovedBy)</td>
+                        <td>
+                            @if (claim.ReviewedDate.HasValue)
+                            {
+                                @claim.ReviewedDate.Value.ToString("dd/MM/yyyy HH:mm")
+                            }
+                            else
+                            {
+                                <text>N/A</text>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
